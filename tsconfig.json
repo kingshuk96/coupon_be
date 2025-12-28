@@ -7,7 +7,15 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@app": ["./app.ts"],
+      "@config": ["./config/index.ts"],
+      "@utils": ["./utils/index.ts"],
+      "@constants/*": ["./constants/*"],
+      "@routes/*": ["./routes/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/**/*",
+    "eslint.config.mjs",
+    "commitlint.config.js",
+    ".huskyrc.cjs",
+    ".prettierrc"
+  ],
+  "compilerOptions": {
+    "noEmit": true,
+    "allowJs": true
+  }
+}

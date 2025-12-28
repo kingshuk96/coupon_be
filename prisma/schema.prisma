@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+generator zod {
+  provider = "zod-prisma-types"
+  output   = "../src/schemas/zod-prisma"
+}
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Coupon {
+    id                  Int           @id @default(autoincrement())
+    code                String        @unique
+    discount            Int
+    expiryDate          DateTime
+    type                String
+    discountType        DiscountType  @default(PERCENTAGE)
+    usageLimit          Int
+    details             Json
+    createdAt           DateTime      @default(now())
+    updatedAt           DateTime      @updatedAt
+
+    @@map("coupons")
+}
+
+enum DiscountType {
+    PERCENTAGE
+    AMOUNT
+}

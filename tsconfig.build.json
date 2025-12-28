@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "removeComments": true,
+    "skipLibCheck": true
+  },
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "test",
+    "*.spec.ts",
+    "*.test.ts",
+    "eslint.config.mjs",
+    "commitlint.config.js",
+    ".huskyrc.cjs"
+  ]
+}

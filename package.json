@@ -5,23 +5,63 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/index.ts",
+    "dev": "nodemon",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "prepare": "husky",
+    "lint": "eslint .",
+    "db:apply:migrate": "prisma migrate dev",
+    "db:generate": "prisma generate"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fastify/cors": "11.2.0",
+    "@fastify/jwt": "10.0.0",
+    "@fastify/multipart": "9.3.0",
+    "@fastify/static": "9.0.0",
+    "@fastify/swagger": "9.6.1",
+    "@fastify/swagger-ui": "5.2.3",
+    "@prisma/client": "^6.19.1",
     "dotenv": "^17.2.3",
     "fastify": "^5.6.2",
-    "pg": "^8.16.3"
+    "fastify-type-provider-zod": "6.1.0",
+    "pg": "^8.16.3",
+    "swagger-jsdoc": "6.2.8",
+    "zod": "4.2.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.2.0",
+    "@commitlint/config-conventional": "^20.2.0",
+    "@eslint/js": "^9.39.2",
     "@types/node": "^25.0.3",
     "@types/pg": "^8.16.0",
+    "@types/swagger-jsdoc": "6.0.4",
+    "cross-env": "10.1.0",
+    "dotenv-cli": "11.0.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^16.5.0",
+    "husky": "^9.1.7",
+    "lint-staged": "16.2.7",
     "nodemon": "^3.1.11",
+    "pino-pretty": "10.3.1",
+    "prettier": "^3.7.4",
+    "prisma": "^6.19.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "tsconfig-paths": "4.2.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.50.1",
+    "zod-prisma-types": "3.3.10"
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   }
 }
