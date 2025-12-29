@@ -2,16 +2,19 @@ import { FastifyInstance } from 'fastify';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import {
   createCouponHandler,
-  getCouponsHandler,
+  deleteCouponHandler,
+  getCouponByIdHandler,
   getCouponHandler,
+  getCouponsHandler,
+  updateCouponHandler,
 } from '../controllers/coupon.controller';
 import {
   createCouponSchema,
   getCouponParamsSchema,
+  updateCouponSchema,
 } from '../schemas/coupon.schema';
 
 export default async function couponRoutes(app: FastifyInstance) {
-  // Explicitly cast app to include ZodTypeProvider for strict typing in routes
   const server = app.withTypeProvider<ZodTypeProvider>();
 
   server.post(
@@ -27,7 +30,7 @@ export default async function couponRoutes(app: FastifyInstance) {
   server.get('/coupons', getCouponsHandler);
 
   server.get(
-    '/coupons/:code',
+    '/coupons/code/:code',
     {
       schema: {
         params: getCouponParamsSchema,
@@ -35,4 +38,18 @@ export default async function couponRoutes(app: FastifyInstance) {
     },
     getCouponHandler,
   );
+
+  server.get('/coupons/:id', getCouponByIdHandler);
+
+  server.put(
+    '/coupons/:id',
+    {
+      schema: {
+        body: updateCouponSchema,
+      },
+    },
+    updateCouponHandler,
+  );
+
+  server.delete('/coupons/:id', deleteCouponHandler);
 }

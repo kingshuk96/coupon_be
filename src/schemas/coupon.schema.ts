@@ -16,3 +16,5 @@ export const createCouponSchema = z.object({
 export const getCouponParamsSchema = z.object({
   code: z.string(),
 });
+
+export const updateCouponSchema = createCouponSchema.partial();

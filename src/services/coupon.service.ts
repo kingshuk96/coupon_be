@@ -1,7 +1,7 @@
 import prisma from '../config/db';
 import { Coupon, Prisma } from '@prisma/client';
 
-export const createCoupon = async (
+const createCoupon = async (
   data: Prisma.CouponCreateInput,
 ): Promise<Coupon> => {
   return await prisma.coupon.create({
@@ -9,17 +9,21 @@ export const createCoupon = async (
   });
 };
 
-export const getCouponByCode = async (code: string): Promise<Coupon | null> => {
+const getCouponByCode = async (code: string): Promise<Coupon | null> => {
   return await prisma.coupon.findUnique({
     where: { code },
   });
 };
-
-export const getAllCoupons = async (): Promise<Coupon[]> => {
+const getCouponById = async (id: number): Promise<Coupon | null> => {
+  return await prisma.coupon.findUnique({
+    where: { id },
+  });
+};
+const getAllCoupons = async (): Promise<Coupon[]> => {
   return await prisma.coupon.findMany();
 };
 
-export const updateCoupon = async (
+const updateCoupon = async (
   id: number,
   data: Prisma.CouponUpdateInput,
 ): Promise<Coupon> => {
@@ -29,8 +33,17 @@ export const updateCoupon = async (
   });
 };
 
-export const deleteCoupon = async (id: number): Promise<Coupon> => {
+const deleteCoupon = async (id: number): Promise<Coupon> => {
   return await prisma.coupon.delete({
     where: { id },
   });
+};
+
+export {
+  createCoupon,
+  getCouponByCode,
+  getAllCoupons,
+  updateCoupon,
+  deleteCoupon,
+  getCouponById,
 };
