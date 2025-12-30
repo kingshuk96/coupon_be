@@ -5,7 +5,8 @@
     "eslint.config.mjs",
     "commitlint.config.js",
     ".huskyrc.cjs",
-    ".prettierrc"
+    ".prettierrc",
+    "jest.config.js"
   ],
   "compilerOptions": {
     "noEmit": true,
