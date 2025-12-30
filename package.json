@@ -10,7 +10,8 @@
     "start": "node dist/index.js",
     "prepare": "husky",
     "lint": "eslint .",
-    "db:apply:migrate": "prisma migrate dev",
+    "db:migrate:create": "prisma migrate dev --create-only",
+    "db:migrate:apply": "prisma migrate dev",
     "db:generate": "prisma generate",
     "swagger:gen": "ts-node -r tsconfig-paths/register src/scripts/generate-swagger.ts"
   },
