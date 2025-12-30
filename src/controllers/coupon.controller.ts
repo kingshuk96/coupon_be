@@ -6,12 +6,18 @@ import {
   getCouponByCode,
   getCouponById,
   updateCoupon,
+  getApplicableCoupons,
+  applyCoupon,
 } from '../services/coupon.service';
 import { StatusCodes } from '../constants/enums';
-import { Prisma } from '@prisma/client';
+import {
+  Cart,
+  CreateCouponInput,
+  UpdateCouponInput,
+} from '../schemas/coupon.schema';
 
 const createCouponHandler = async (
-  request: FastifyRequest<{ Body: Prisma.CouponCreateInput }>,
+  request: FastifyRequest<{ Body: CreateCouponInput }>,
   reply: FastifyReply,
 ) => {
   try {
@@ -19,15 +25,10 @@ const createCouponHandler = async (
     return reply.status(StatusCodes.CREATED).send(coupon);
   } catch (error) {
     request.log.error(error);
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === 'P2002'
-    ) {
-      return reply
-        .status(StatusCodes.CONFLICT)
-        .send({ message: 'Coupon code already exists' });
-    }
-    return reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send(error);
+
+    return reply
+      .status(StatusCodes.CONFLICT)
+      .send({ message: 'Coupon code already exists' });
   }
 };
 
@@ -82,7 +83,7 @@ const getCouponByIdHandler = async (
 const updateCouponHandler = async (
   request: FastifyRequest<{
     Params: { id: number };
-    Body: Prisma.CouponUpdateInput;
+    Body: UpdateCouponInput;
   }>,
   reply: FastifyReply,
 ) => {
@@ -110,6 +111,33 @@ const deleteCouponHandler = async (
   }
 };
 
+const getApplicableCouponsHandler = async (
+  request: FastifyRequest<{ Body: Cart }>,
+  reply: FastifyReply,
+) => {
+  try {
+    const coupons = await getApplicableCoupons(request.body);
+    return reply.status(StatusCodes.OK).send({ applicableCoupons: coupons });
+  } catch (error) {
+    request.log.error(error);
+    return reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send(error);
+  }
+};
+
+const applyCouponHandler = async (
+  request: FastifyRequest<{ Params: { id: number }; Body: Cart }>,
+  reply: FastifyReply,
+) => {
+  try {
+    const { id } = request.params;
+    const updatedCart = await applyCoupon(Number(id), request.body);
+    return reply.status(StatusCodes.OK).send(updatedCart);
+  } catch (error) {
+    request.log.error(error);
+    return reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send(error);
+  }
+};
+
 export {
   createCouponHandler,
   getCouponsHandler,
@@ -117,4 +145,6 @@ export {
   getCouponByIdHandler,
   updateCouponHandler,
   deleteCouponHandler,
+  getApplicableCouponsHandler,
+  applyCouponHandler,
 };

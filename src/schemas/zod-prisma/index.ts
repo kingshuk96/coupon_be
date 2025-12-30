@@ -75,6 +75,7 @@ export const TransactionIsolationLevelSchema = z.enum([
 
 export const CouponScalarFieldEnumSchema = z.enum([
   'id',
+  'uuid',
   'code',
   'discount',
   'expiryDate',
@@ -88,9 +89,15 @@ export const CouponScalarFieldEnumSchema = z.enum([
 
 export const SortOrderSchema = z.enum(['asc', 'desc']);
 
-export const JsonNullValueInputSchema = z
-  .enum(['JsonNull'])
-  .transform((value) => (value === 'JsonNull' ? Prisma.JsonNull : value));
+export const NullableJsonNullValueInputSchema = z
+  .enum(['DbNull', 'JsonNull'])
+  .transform((value) =>
+    value === 'JsonNull'
+      ? Prisma.JsonNull
+      : value === 'DbNull'
+        ? Prisma.DbNull
+        : value,
+  );
 
 export const QueryModeSchema = z.enum(['default', 'insensitive']);
 
@@ -105,6 +112,8 @@ export const JsonNullValueFilterSchema = z
           ? Prisma.AnyNull
           : value,
   );
+
+export const NullsOrderSchema = z.enum(['first', 'last']);
 
 export const DiscountTypeSchema = z.enum(['PERCENTAGE', 'AMOUNT']);
 
@@ -121,12 +130,13 @@ export type DiscountTypeType = `${z.infer<typeof DiscountTypeSchema>}`;
 export const CouponSchema = z.object({
   discountType: DiscountTypeSchema,
   id: z.number().int(),
+  uuid: z.uuid(),
   code: z.string(),
   discount: z.number().int(),
   expiryDate: z.coerce.date(),
   type: z.string(),
   usageLimit: z.number().int(),
-  details: JsonValueSchema,
+  details: JsonValueSchema.nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });
@@ -143,6 +153,7 @@ export type Coupon = z.infer<typeof CouponSchema>;
 export const CouponSelectSchema: z.ZodType<Prisma.CouponSelect> = z
   .object({
     id: z.boolean().optional(),
+    uuid: z.boolean().optional(),
     code: z.boolean().optional(),
     discount: z.boolean().optional(),
     expiryDate: z.boolean().optional(),
@@ -178,6 +189,7 @@ export const CouponWhereInputSchema: z.ZodType<Prisma.CouponWhereInput> =
       ])
       .optional(),
     id: z.union([z.lazy(() => IntFilterSchema), z.number()]).optional(),
+    uuid: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
     code: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
     discount: z.union([z.lazy(() => IntFilterSchema), z.number()]).optional(),
     expiryDate: z
@@ -191,7 +203,7 @@ export const CouponWhereInputSchema: z.ZodType<Prisma.CouponWhereInput> =
       ])
       .optional(),
     usageLimit: z.union([z.lazy(() => IntFilterSchema), z.number()]).optional(),
-    details: z.lazy(() => JsonFilterSchema).optional(),
+    details: z.lazy(() => JsonNullableFilterSchema).optional(),
     createdAt: z
       .union([z.lazy(() => DateTimeFilterSchema), z.coerce.date()])
       .optional(),
@@ -203,13 +215,19 @@ export const CouponWhereInputSchema: z.ZodType<Prisma.CouponWhereInput> =
 export const CouponOrderByWithRelationInputSchema: z.ZodType<Prisma.CouponOrderByWithRelationInput> =
   z.strictObject({
     id: z.lazy(() => SortOrderSchema).optional(),
+    uuid: z.lazy(() => SortOrderSchema).optional(),
     code: z.lazy(() => SortOrderSchema).optional(),
     discount: z.lazy(() => SortOrderSchema).optional(),
     expiryDate: z.lazy(() => SortOrderSchema).optional(),
     type: z.lazy(() => SortOrderSchema).optional(),
     discountType: z.lazy(() => SortOrderSchema).optional(),
     usageLimit: z.lazy(() => SortOrderSchema).optional(),
-    details: z.lazy(() => SortOrderSchema).optional(),
+    details: z
+      .union([
+        z.lazy(() => SortOrderSchema),
+        z.lazy(() => SortOrderInputSchema),
+      ])
+      .optional(),
     createdAt: z.lazy(() => SortOrderSchema).optional(),
     updatedAt: z.lazy(() => SortOrderSchema).optional(),
   });
@@ -219,10 +237,26 @@ export const CouponWhereUniqueInputSchema: z.ZodType<Prisma.CouponWhereUniqueInp
     .union([
       z.object({
         id: z.number().int(),
+        uuid: z.uuid(),
         code: z.string(),
       }),
       z.object({
         id: z.number().int(),
+        uuid: z.uuid(),
+      }),
+      z.object({
+        id: z.number().int(),
+        code: z.string(),
+      }),
+      z.object({
+        id: z.number().int(),
+      }),
+      z.object({
+        uuid: z.uuid(),
+        code: z.string(),
+      }),
+      z.object({
+        uuid: z.uuid(),
       }),
       z.object({
         code: z.string(),
@@ -231,6 +265,7 @@ export const CouponWhereUniqueInputSchema: z.ZodType<Prisma.CouponWhereUniqueInp
     .and(
       z.strictObject({
         id: z.number().int().optional(),
+        uuid: z.uuid().optional(),
         code: z.string().optional(),
         AND: z
           .union([
@@ -266,7 +301,7 @@ export const CouponWhereUniqueInputSchema: z.ZodType<Prisma.CouponWhereUniqueInp
         usageLimit: z
           .union([z.lazy(() => IntFilterSchema), z.number().int()])
           .optional(),
-        details: z.lazy(() => JsonFilterSchema).optional(),
+        details: z.lazy(() => JsonNullableFilterSchema).optional(),
         createdAt: z
           .union([z.lazy(() => DateTimeFilterSchema), z.coerce.date()])
           .optional(),
@@ -279,13 +314,19 @@ export const CouponWhereUniqueInputSchema: z.ZodType<Prisma.CouponWhereUniqueInp
 export const CouponOrderByWithAggregationInputSchema: z.ZodType<Prisma.CouponOrderByWithAggregationInput> =
   z.strictObject({
     id: z.lazy(() => SortOrderSchema).optional(),
+    uuid: z.lazy(() => SortOrderSchema).optional(),
     code: z.lazy(() => SortOrderSchema).optional(),
     discount: z.lazy(() => SortOrderSchema).optional(),
     expiryDate: z.lazy(() => SortOrderSchema).optional(),
     type: z.lazy(() => SortOrderSchema).optional(),
     discountType: z.lazy(() => SortOrderSchema).optional(),
     usageLimit: z.lazy(() => SortOrderSchema).optional(),
-    details: z.lazy(() => SortOrderSchema).optional(),
+    details: z
+      .union([
+        z.lazy(() => SortOrderSchema),
+        z.lazy(() => SortOrderInputSchema),
+      ])
+      .optional(),
     createdAt: z.lazy(() => SortOrderSchema).optional(),
     updatedAt: z.lazy(() => SortOrderSchema).optional(),
     _count: z.lazy(() => CouponCountOrderByAggregateInputSchema).optional(),
@@ -316,6 +357,9 @@ export const CouponScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.Coupon
     id: z
       .union([z.lazy(() => IntWithAggregatesFilterSchema), z.number()])
       .optional(),
+    uuid: z
+      .union([z.lazy(() => StringWithAggregatesFilterSchema), z.string()])
+      .optional(),
     code: z
       .union([z.lazy(() => StringWithAggregatesFilterSchema), z.string()])
       .optional(),
@@ -340,7 +384,7 @@ export const CouponScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.Coupon
     usageLimit: z
       .union([z.lazy(() => IntWithAggregatesFilterSchema), z.number()])
       .optional(),
-    details: z.lazy(() => JsonWithAggregatesFilterSchema).optional(),
+    details: z.lazy(() => JsonNullableWithAggregatesFilterSchema).optional(),
     createdAt: z
       .union([
         z.lazy(() => DateTimeWithAggregatesFilterSchema),
@@ -357,16 +401,19 @@ export const CouponScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.Coupon
 
 export const CouponCreateInputSchema: z.ZodType<Prisma.CouponCreateInput> =
   z.strictObject({
+    uuid: z.uuid().optional(),
     code: z.string(),
     discount: z.number().int(),
     expiryDate: z.coerce.date(),
     type: z.string(),
     discountType: z.lazy(() => DiscountTypeSchema).optional(),
     usageLimit: z.number().int(),
-    details: z.union([
-      z.lazy(() => JsonNullValueInputSchema),
-      InputJsonValueSchema,
-    ]),
+    details: z
+      .union([
+        z.lazy(() => NullableJsonNullValueInputSchema),
+        InputJsonValueSchema,
+      ])
+      .optional(),
     createdAt: z.coerce.date().optional(),
     updatedAt: z.coerce.date().optional(),
   });
@@ -374,22 +421,28 @@ export const CouponCreateInputSchema: z.ZodType<Prisma.CouponCreateInput> =
 export const CouponUncheckedCreateInputSchema: z.ZodType<Prisma.CouponUncheckedCreateInput> =
   z.strictObject({
     id: z.number().int().optional(),
+    uuid: z.uuid().optional(),
     code: z.string(),
     discount: z.number().int(),
     expiryDate: z.coerce.date(),
     type: z.string(),
     discountType: z.lazy(() => DiscountTypeSchema).optional(),
     usageLimit: z.number().int(),
-    details: z.union([
-      z.lazy(() => JsonNullValueInputSchema),
-      InputJsonValueSchema,
-    ]),
+    details: z
+      .union([
+        z.lazy(() => NullableJsonNullValueInputSchema),
+        InputJsonValueSchema,
+      ])
+      .optional(),
     createdAt: z.coerce.date().optional(),
     updatedAt: z.coerce.date().optional(),
   });
 
 export const CouponUpdateInputSchema: z.ZodType<Prisma.CouponUpdateInput> =
   z.strictObject({
+    uuid: z
+      .union([z.uuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)])
+      .optional(),
     code: z
       .union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)])
       .optional(),
@@ -421,7 +474,10 @@ export const CouponUpdateInputSchema: z.ZodType<Prisma.CouponUpdateInput> =
       ])
       .optional(),
     details: z
-      .union([z.lazy(() => JsonNullValueInputSchema), InputJsonValueSchema])
+      .union([
+        z.lazy(() => NullableJsonNullValueInputSchema),
+        InputJsonValueSchema,
+      ])
       .optional(),
     createdAt: z
       .union([
@@ -445,6 +501,9 @@ export const CouponUncheckedUpdateInputSchema: z.ZodType<Prisma.CouponUncheckedU
         z.lazy(() => IntFieldUpdateOperationsInputSchema),
       ])
       .optional(),
+    uuid: z
+      .union([z.uuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)])
+      .optional(),
     code: z
       .union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)])
       .optional(),
@@ -476,7 +535,10 @@ export const CouponUncheckedUpdateInputSchema: z.ZodType<Prisma.CouponUncheckedU
       ])
       .optional(),
     details: z
-      .union([z.lazy(() => JsonNullValueInputSchema), InputJsonValueSchema])
+      .union([
+        z.lazy(() => NullableJsonNullValueInputSchema),
+        InputJsonValueSchema,
+      ])
       .optional(),
     createdAt: z
       .union([
@@ -495,22 +557,28 @@ export const CouponUncheckedUpdateInputSchema: z.ZodType<Prisma.CouponUncheckedU
 export const CouponCreateManyInputSchema: z.ZodType<Prisma.CouponCreateManyInput> =
   z.strictObject({
     id: z.number().int().optional(),
+    uuid: z.uuid().optional(),
     code: z.string(),
     discount: z.number().int(),
     expiryDate: z.coerce.date(),
     type: z.string(),
     discountType: z.lazy(() => DiscountTypeSchema).optional(),
     usageLimit: z.number().int(),
-    details: z.union([
-      z.lazy(() => JsonNullValueInputSchema),
-      InputJsonValueSchema,
-    ]),
+    details: z
+      .union([
+        z.lazy(() => NullableJsonNullValueInputSchema),
+        InputJsonValueSchema,
+      ])
+      .optional(),
     createdAt: z.coerce.date().optional(),
     updatedAt: z.coerce.date().optional(),
   });
 
 export const CouponUpdateManyMutationInputSchema: z.ZodType<Prisma.CouponUpdateManyMutationInput> =
   z.strictObject({
+    uuid: z
+      .union([z.uuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)])
+      .optional(),
     code: z
       .union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)])
       .optional(),
@@ -542,7 +610,10 @@ export const CouponUpdateManyMutationInputSchema: z.ZodType<Prisma.CouponUpdateM
       ])
       .optional(),
     details: z
-      .union([z.lazy(() => JsonNullValueInputSchema), InputJsonValueSchema])
+      .union([
+        z.lazy(() => NullableJsonNullValueInputSchema),
+        InputJsonValueSchema,
+      ])
       .optional(),
     createdAt: z
       .union([
@@ -566,6 +637,9 @@ export const CouponUncheckedUpdateManyInputSchema: z.ZodType<Prisma.CouponUnchec
         z.lazy(() => IntFieldUpdateOperationsInputSchema),
       ])
       .optional(),
+    uuid: z
+      .union([z.uuid(), z.lazy(() => StringFieldUpdateOperationsInputSchema)])
+      .optional(),
     code: z
       .union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputSchema)])
       .optional(),
@@ -597,7 +671,10 @@ export const CouponUncheckedUpdateManyInputSchema: z.ZodType<Prisma.CouponUnchec
       ])
       .optional(),
     details: z
-      .union([z.lazy(() => JsonNullValueInputSchema), InputJsonValueSchema])
+      .union([
+        z.lazy(() => NullableJsonNullValueInputSchema),
+        InputJsonValueSchema,
+      ])
       .optional(),
     createdAt: z
       .union([
@@ -675,26 +752,34 @@ export const EnumDiscountTypeFilterSchema: z.ZodType<Prisma.EnumDiscountTypeFilt
       .optional(),
   });
 
-export const JsonFilterSchema: z.ZodType<Prisma.JsonFilter> = z.strictObject({
-  equals: InputJsonValueSchema.optional(),
-  path: z.string().array().optional(),
-  mode: z.lazy(() => QueryModeSchema).optional(),
-  string_contains: z.string().optional(),
-  string_starts_with: z.string().optional(),
-  string_ends_with: z.string().optional(),
-  array_starts_with: InputJsonValueSchema.optional().nullable(),
-  array_ends_with: InputJsonValueSchema.optional().nullable(),
-  array_contains: InputJsonValueSchema.optional().nullable(),
-  lt: InputJsonValueSchema.optional(),
-  lte: InputJsonValueSchema.optional(),
-  gt: InputJsonValueSchema.optional(),
-  gte: InputJsonValueSchema.optional(),
-  not: InputJsonValueSchema.optional(),
-});
+export const JsonNullableFilterSchema: z.ZodType<Prisma.JsonNullableFilter> =
+  z.strictObject({
+    equals: InputJsonValueSchema.optional(),
+    path: z.string().array().optional(),
+    mode: z.lazy(() => QueryModeSchema).optional(),
+    string_contains: z.string().optional(),
+    string_starts_with: z.string().optional(),
+    string_ends_with: z.string().optional(),
+    array_starts_with: InputJsonValueSchema.optional().nullable(),
+    array_ends_with: InputJsonValueSchema.optional().nullable(),
+    array_contains: InputJsonValueSchema.optional().nullable(),
+    lt: InputJsonValueSchema.optional(),
+    lte: InputJsonValueSchema.optional(),
+    gt: InputJsonValueSchema.optional(),
+    gte: InputJsonValueSchema.optional(),
+    not: InputJsonValueSchema.optional(),
+  });
+
+export const SortOrderInputSchema: z.ZodType<Prisma.SortOrderInput> =
+  z.strictObject({
+    sort: z.lazy(() => SortOrderSchema),
+    nulls: z.lazy(() => NullsOrderSchema).optional(),
+  });
 
 export const CouponCountOrderByAggregateInputSchema: z.ZodType<Prisma.CouponCountOrderByAggregateInput> =
   z.strictObject({
     id: z.lazy(() => SortOrderSchema).optional(),
+    uuid: z.lazy(() => SortOrderSchema).optional(),
     code: z.lazy(() => SortOrderSchema).optional(),
     discount: z.lazy(() => SortOrderSchema).optional(),
     expiryDate: z.lazy(() => SortOrderSchema).optional(),
@@ -716,6 +801,7 @@ export const CouponAvgOrderByAggregateInputSchema: z.ZodType<Prisma.CouponAvgOrd
 export const CouponMaxOrderByAggregateInputSchema: z.ZodType<Prisma.CouponMaxOrderByAggregateInput> =
   z.strictObject({
     id: z.lazy(() => SortOrderSchema).optional(),
+    uuid: z.lazy(() => SortOrderSchema).optional(),
     code: z.lazy(() => SortOrderSchema).optional(),
     discount: z.lazy(() => SortOrderSchema).optional(),
     expiryDate: z.lazy(() => SortOrderSchema).optional(),
@@ -729,6 +815,7 @@ export const CouponMaxOrderByAggregateInputSchema: z.ZodType<Prisma.CouponMaxOrd
 export const CouponMinOrderByAggregateInputSchema: z.ZodType<Prisma.CouponMinOrderByAggregateInput> =
   z.strictObject({
     id: z.lazy(() => SortOrderSchema).optional(),
+    uuid: z.lazy(() => SortOrderSchema).optional(),
     code: z.lazy(() => SortOrderSchema).optional(),
     discount: z.lazy(() => SortOrderSchema).optional(),
     expiryDate: z.lazy(() => SortOrderSchema).optional(),
@@ -828,7 +915,7 @@ export const EnumDiscountTypeWithAggregatesFilterSchema: z.ZodType<Prisma.EnumDi
     _max: z.lazy(() => NestedEnumDiscountTypeFilterSchema).optional(),
   });
 
-export const JsonWithAggregatesFilterSchema: z.ZodType<Prisma.JsonWithAggregatesFilter> =
+export const JsonNullableWithAggregatesFilterSchema: z.ZodType<Prisma.JsonNullableWithAggregatesFilter> =
   z.strictObject({
     equals: InputJsonValueSchema.optional(),
     path: z.string().array().optional(),
@@ -844,9 +931,9 @@ export const JsonWithAggregatesFilterSchema: z.ZodType<Prisma.JsonWithAggregates
     gt: InputJsonValueSchema.optional(),
     gte: InputJsonValueSchema.optional(),
     not: InputJsonValueSchema.optional(),
-    _count: z.lazy(() => NestedIntFilterSchema).optional(),
-    _min: z.lazy(() => NestedJsonFilterSchema).optional(),
-    _max: z.lazy(() => NestedJsonFilterSchema).optional(),
+    _count: z.lazy(() => NestedIntNullableFilterSchema).optional(),
+    _min: z.lazy(() => NestedJsonNullableFilterSchema).optional(),
+    _max: z.lazy(() => NestedJsonNullableFilterSchema).optional(),
   });
 
 export const StringFieldUpdateOperationsInputSchema: z.ZodType<Prisma.StringFieldUpdateOperationsInput> =
@@ -1030,7 +1117,22 @@ export const NestedEnumDiscountTypeWithAggregatesFilterSchema: z.ZodType<Prisma.
     _max: z.lazy(() => NestedEnumDiscountTypeFilterSchema).optional(),
   });
 
-export const NestedJsonFilterSchema: z.ZodType<Prisma.NestedJsonFilter> =
+export const NestedIntNullableFilterSchema: z.ZodType<Prisma.NestedIntNullableFilter> =
+  z.strictObject({
+    equals: z.number().optional().nullable(),
+    in: z.number().array().optional().nullable(),
+    notIn: z.number().array().optional().nullable(),
+    lt: z.number().optional(),
+    lte: z.number().optional(),
+    gt: z.number().optional(),
+    gte: z.number().optional(),
+    not: z
+      .union([z.number(), z.lazy(() => NestedIntNullableFilterSchema)])
+      .optional()
+      .nullable(),
+  });
+
+export const NestedJsonNullableFilterSchema: z.ZodType<Prisma.NestedJsonNullableFilter> =
   z.strictObject({
     equals: InputJsonValueSchema.optional(),
     path: z.string().array().optional(),

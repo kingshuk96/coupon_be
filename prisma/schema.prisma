@@ -12,14 +12,14 @@ datasource db {
 
 model Coupon {
     id                  Int           @id @default(autoincrement())
-    uuid                String        @unique
+    uuid                String        @unique @default(uuid())
     code                String        @unique
     discount            Int
     expiryDate          DateTime
     type                String
     discountType        DiscountType  @default(PERCENTAGE)
     usageLimit          Int
-    details             Json
+    details             Json?
     createdAt           DateTime      @default(now())
     updatedAt           DateTime      @updatedAt
 

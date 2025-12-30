@@ -11,7 +11,8 @@
     "prepare": "husky",
     "lint": "eslint .",
     "db:apply:migrate": "prisma migrate dev",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "swagger:gen": "ts-node -r tsconfig-paths/register src/scripts/generate-swagger.ts"
   },
   "keywords": [],
   "author": "",

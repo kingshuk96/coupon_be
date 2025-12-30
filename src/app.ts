@@ -10,11 +10,12 @@ import { ZodError } from 'zod';
 import {
   serializerCompiler,
   validatorCompiler,
+  jsonSchemaTransform,
 } from 'fastify-type-provider-zod';
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi from '@fastify/swagger-ui';
 import { StatusCodes } from '@constants/enums';
-import { swaggerSpec } from './swagger';
+// import { swaggerSpec } from './swagger';
 import routes from '@routes/index';
 
 const App = async (options: FastifyServerOptions = {}) => {
@@ -40,11 +41,19 @@ const App = async (options: FastifyServerOptions = {}) => {
   app.register(cors);
 
   app.register(fastifySwagger, {
-    mode: 'static',
-    specification: {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      document: swaggerSpec as any,
+    openapi: {
+      info: {
+        title: 'Coupon System API',
+        description: 'API documentation for the Coupon System',
+        version: '1.0.0',
+      },
+      servers: [
+        {
+          url: 'http://localhost:3000',
+        },
+      ],
     },
+    transform: jsonSchemaTransform,
   });
 
   app.register(fastifySwaggerUi, {
