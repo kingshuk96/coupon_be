@@ -46,3 +46,66 @@ We have carefully selected a suite of tools to ensure scalability, maintainabili
 - **.npmrc**: Configures npm behavior for reliability:
   - `save-exact=true`: Pins dependencies to exact versions relative to `package.json` (no `^` or `~`), preventing accidental breaking changes from automatic patch updates.
   - `engine-strict=true`: Enforces the Node.js version requirements defined in `package.json`.
+
+## 📋 Implementation Details
+
+### Implemented Cases
+
+We have successfully implemented a flexible coupon system supporting the following types:
+
+1.  **Cart-wise Coupons:**
+    - **Logic:** Applies a discount if the total value of items in the cart exceeds a specified threshold.
+    - **Discount Types:** Supports both fixed amount (`AMOUNT`) and percentage-based (`PERCENTAGE`) discounts.
+    - **Example:** "Get 10% off on orders above $100".
+
+2.  **Product-wise Coupons:**
+    - **Logic:** Applies a discount to specific products identified by their `productId`.
+    - **Discount Types:** Supports percentage off the item's total line price or a fixed amount off.
+    - **Example:** "Get $50 off on the Super Widget".
+
+3.  **BxGy (Buy X Get Y) Coupons:**
+    - **Logic:** "Buy a certain quantity of X products, Get a certain quantity of Y products for free."
+    - **Features:**
+      - **Repetition Limit:** Limits how many times the offer can be applied per cart (e.g., "Max 3 sets").
+      - **Flexible Arrays:** Can define multiple valid "Buy" product IDs and multiple valid "Get" product IDs.
+    - **Example:** "Buy 2 from [Item A, Item B] Get 1 from [Item C] Free".
+
+4.  **Applicable Coupons API (`POST /applicable-coupons`):**
+    - Scans the user's cart.
+    - Filters out expired coupons.
+    - Calculates the potential savings for every active coupon in the database.
+    - Returns a list of all coupons that _can_ be applied, along with the specific discount amount they would provide.
+
+5.  **Apply Coupon API (`POST /apply-coupon/:id`):**
+    - Validates the specific coupon ID against the cart.
+    - Checks for expiry.
+    - Returns the cart with the discount applied to the total price and/or individual line items.
+
+### Unimplemented Cases & Future Improvements
+
+1.  **Tiered Cart Discounts:**
+    - **Description:** Coupons that change value based on spend tiers (e.g., "10% > $100, 20% > $200").
+    - **Reason:** Currently requires creating multiple distinct coupons with different thresholds.
+
+2.  **User-specific Limits:**
+    - **Description:** "Limit 1 use per customer".
+    - **Reason:** The current schema handles global `usageLimit` but lacks a user/customer entity and tracking table to enforce per-user limits.
+
+3.  **Category-based Discounts:**
+    - **Description:** "10% off all Electronics".
+    - **Reason:** The system currently relies on explicit `productId` and does not have visibility into product categories or metadata.
+
+4.  **Complex BxGy Logic:**
+    - **Description:** "Buy A AND B to get C".
+    - **Reason:** The current implementation mimics "Buy from Pool A, Get from Pool B". Strict AND conditions for mixed bundles are not supported.
+
+### Limitations
+
+- **No User Context:** The system is stateless regarding users; it processes carts based purely on the payload provided.
+- **Sequential Stacking:** The system does not currently support applying multiple coupons to a single cart (stacking). It applies one selected coupon.
+- **Currency Agnostic:** Assumes all monetary values in the Cart and Coupon definitions share the same currency.
+
+### Assumptions
+
+- **Valid Inputs:** It is assumed that the `productId` and `price` fields provided in the Cart payload are valid and verified by the client/frontend before calling these APIs.
+- **Usage Decrement:** The actual decrement of the global `usageLimit` is assumed to occur at the "Place Order" stage (not implemented here), rather than at the "Apply Coupon" (cart calculation) stage.

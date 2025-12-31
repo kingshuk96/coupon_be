@@ -68,7 +68,7 @@ const getCouponByIdHandler = async (
 ) => {
   try {
     const { id } = request.params;
-    const coupon = await getCouponById(id);
+    const coupon = await getCouponById(Number(id));
     if (!coupon) {
       return reply
         .status(StatusCodes.NOT_FOUND)
@@ -103,8 +103,16 @@ const deleteCouponHandler = async (
 ) => {
   try {
     const { id } = request.params;
+    const existingCoupon = await getCouponById(Number(id));
+    if (!existingCoupon) {
+      return reply
+        .status(StatusCodes.NOT_FOUND)
+        .send({ message: 'Coupon not found' });
+    }
     const coupon = await deleteCoupon(Number(id));
-    return reply.status(StatusCodes.OK).send(coupon);
+    return reply
+      .status(StatusCodes.OK)
+      .send({ message: `Coupon ${coupon.code} is deleted successfully` });
   } catch (error) {
     request.log.error(error);
     return reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send(error);
