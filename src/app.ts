@@ -15,7 +15,6 @@ import {
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi from '@fastify/swagger-ui';
 import { StatusCodes } from '@constants/enums';
-// import { swaggerSpec } from './swagger';
 import routes from '@routes/index';
 
 const App = async (options: FastifyServerOptions = {}) => {
