@@ -115,6 +115,12 @@ Follow these steps to set up and run the project locally.
     npm start
     ```
 
+6.  **Access API Documentation:**
+
+    Once the application is running, you can view the interactive API documentation (Swagger UI) at:
+
+    [http://localhost:3000/documentation](http://localhost:3000/documentation)
+
 ## 📋 Implementation Details
 
 ### Implemented Cases
