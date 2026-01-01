@@ -47,6 +47,74 @@ We have carefully selected a suite of tools to ensure scalability, maintainabili
   - `save-exact=true`: Pins dependencies to exact versions relative to `package.json` (no `^` or `~`), preventing accidental breaking changes from automatic patch updates.
   - `engine-strict=true`: Enforces the Node.js version requirements defined in `package.json`.
 
+## 🚀 Getting Started
+
+Follow these steps to set up and run the project locally.
+
+### Prerequisites
+
+- **Node.js**: v20.17.0 (Recommended to use [nvm](https://github.com/nvm-sh/nvm))
+- **PostgreSQL**: Ensure you have a running instance of PostgreSQL.
+
+### Installation
+
+1.  **Clone the repository:**
+
+    ```bash
+    git clone <repository_url>
+    cd coupon_be
+    ```
+
+2.  **Install dependencies:**
+
+    ```bash
+    npm install
+    ```
+
+3.  **Environment Configuration:**
+    Create a `.env` file in the root directory. You can use the following template:
+
+    ```env
+    PORT=3000
+    APP_ENV=development
+    APP_URL=http://localhost:3000
+    TRUST_PROXY=false
+
+    # Database Configuration
+    DB_CONN=postgresql
+    DB_HOST=127.0.0.1
+    DB_PORT=5432
+    DB_USER=postgres
+    DB_PASS=your_password
+    DB_NAME=coupon_be
+
+    # Prisma Database Connection String
+    DATABASE_URL=postgresql://postgres:your_password@127.0.0.1:5432/coupon_be
+    ```
+
+4.  **Database Setup:**
+
+    Run the following commands to generate the Prisma client and apply migrations:
+
+    ```bash
+    # Generate Prisma Client
+    npm run db:generate
+
+    # Run Migrations
+    npm run db:migrate:apply
+    ```
+
+5.  **Run the Application:**
+
+    ```bash
+    # Development mode (with nodemon)
+    npm run dev
+
+    # Production build and start
+    npm run build
+    npm start
+    ```
+
 ## 📋 Implementation Details
 
 ### Implemented Cases
